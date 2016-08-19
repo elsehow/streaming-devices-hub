@@ -1,0 +1,20 @@
+{
+  "main": "src/index.js",
+  "scripts": {
+    "watch": "watchify -vd -p browserify-hmr test/index.js -o test/bundle.js",
+    "start": "ecstatic test/ --port 9999",
+    "dev": "npm run watch & npm start"
+  },
+  "author": "elsehow",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "browserify-hmr": "^0.3.1",
+    "ecstatic": "^1.4.0",
+    "kefir": "^3.4.0",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "ud": "^3.0.1",
+    "yo-yo": "^1.2.2"
+  }
+}
