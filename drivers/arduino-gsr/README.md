@@ -1,19 +1,10 @@
-# empty-module
+# arduino GSR
 
-description
+sets up a GSR arduino sensor
 
-<!-- see [details.md](details.md). -->
+returns a kefir stream
 
-## example
-
-```javascript
-```
-
-## use
-
-```
-npm i
-```
+see test/test.js for a usage example 
 
 ## license
 
