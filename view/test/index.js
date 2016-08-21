@@ -10,13 +10,13 @@ let setup = ud.defn(module, function (state) {
     let id = `clock + ${offset}`
 
     function setup () {
-      let myStream = kefir.fromPoll(500, () => {
+      let myStream = kefir.fromPoll(1000+offset, () => {
         return {
           metadata: {
             id: id
           },
           payload: {
-            time: `${Date.now()} + ${offset}`,
+            time: Date.now()
           },
         }
       })
@@ -25,8 +25,10 @@ let setup = ud.defn(module, function (state) {
 
     // return a stream of yo template strings
     function draw (readingsS) {
-      // turn stream into yo templates
+      // each value in the stream is a list
+      // of 0 or more readings from this device
       return readingsS.map(readings => {
+        // some yo template to retrun
         return yo`<div>
           <h3>heres the time for ${id}</h3>
           <strong>${readings[0].payload.time}</strong>
@@ -42,13 +44,19 @@ let setup = ud.defn(module, function (state) {
   }
 
 
+  // returns a stream of top-level view elements
   function elementStream (devices) {
-    let loggedDataS = kefir.zip(devices.map(d => d.setup()))
+    // simulate logged data stream 
+    // which will be buffers (ie. a list)
+    let loggedDataS = kefir
+        .merge(devices.map(d => d.setup()))
+        .map(r => [ r ])
+    // get all the drawFs from our devces
     let drawFs = devices.map(d => d.draw)
+    // all the ids of our devices
     let deviceIds = devices.map(d => d.id)
-    let elS = viewer(loggedDataS,
-                     deviceIds,
-                     drawFs)
+    // return a stream of elements with devices lists
+    let elS = viewer(loggedDataS, deviceIds, drawFs)
     return elS
   }
 
@@ -58,7 +66,7 @@ let setup = ud.defn(module, function (state) {
   let devices = [
     // two devices produce slightly diff data
     device(),
-    device('WOW'),
+    device(250),
   ]
   let yoTemplateS = elementStream(devices)
   let el = null

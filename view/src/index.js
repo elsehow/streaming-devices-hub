@@ -1,5 +1,6 @@
 let kefir = require('kefir')
 let yo = require('yo-yo')
+let identity = (...x) => x
 
 function topLevelView (views) {
   return yo`<div id="app">
@@ -28,11 +29,13 @@ module.exports = (loggedDataS, deviceIds, viewFs) => {
   // list of separate views per device
   let viewSs = deviceIds.map((id, i) => {
     let deviceViewF = viewFs[i]
-    let tempS = loggedDataS.map(fromDevice(id)).filter(notEmpty)
-    return deviceViewF(tempS)
+    let deviceDataS = loggedDataS
+        .map(fromDevice(id))
+        .filter(notEmpty)
+    return deviceViewF(deviceDataS)
   })
   // zip into one stream of lists
-  let viewS = kefir.zip(viewSs)
+  let viewS = kefir.combine(viewSs, identity)
   // // TODO combine errors
   // let errorViewS = loggedDataS.mapErrors(err => {
   //   return yo`<strong>${err}</strong>`
