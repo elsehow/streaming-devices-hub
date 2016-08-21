@@ -1,5 +1,6 @@
 var SerialPort = require('serialport');
 var empty = x => x.length==0
+var kefir = require('kefir')
 // calls back on (err, list-of-arduino-ports)
 function findArduinos (cb) {
   SerialPort.list(function (err, ports) {
@@ -13,15 +14,29 @@ function findArduinos (cb) {
     return cb('No arduinos found!', null)
   })
 }
-module.exports = function (cb) {
-  findArduinos(function (err, portNames) {
-    if (err) return cb(err)
-    // TODO try each port name in sequence?
-    var portName = portNames[0]
-    var port = new SerialPort(portName, {
-      parser: SerialPort.parsers.readline(',\n')
-    }, function (err) {
-      cb(err, port)
-    })
+// TODO try each port name in sequence?
+function choosePort (names) {
+  return names[0]
+}
+function open (portName, cb) {
+  var port = new SerialPort(portName, {
+    parser: SerialPort.parsers.readline(',\n')
+  }) 
+  port.on('open', function (err) {
+    cb(err, port)
   })
+}
+// returns a stream
+module.exports = function () {
+  return kefir
+    .fromNodeCallback(findArduinos)
+    .map(choosePort)
+    .flatMap(function (port) {
+      return kefir.fromNodeCallback(cb => {
+        return open(port, cb)
+      })
+    })
+    .flatMap(port => {
+      return kefir.fromEvents(port, 'data')
+    })
 }
