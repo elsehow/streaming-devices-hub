@@ -9,5 +9,5 @@ module.exports = {
   },
   arduino: function (port) {
     return require('arduino-gsr')(port)
-  }
+  },
 }

@@ -9,9 +9,8 @@ function clearWindowRef () {
   mainWindow = null
 }
 function createWindow () {
-  if (mainWindow === null) {
+  if (mainWindow === null) 
     createWindow()
-  }
 }
 function createWindow () {
   // Create the browser window.
@@ -21,10 +20,8 @@ function createWindow () {
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows in an array if your app supports multi windows, this is the time when you should delete the corresponding element.
-    mainWindow = null
-  })
+  // Dereference the window object, usually you would store windows in an array if your app supports multi windows, this is the time when you should delete the corresponding element.
+  mainWindow.on('closed', clearWindowRef)
 }
 
 // This method will be called when Electron has finished
@@ -33,6 +30,5 @@ function createWindow () {
 app.on('ready', createWindow)
 // Quit when all windows are closed.
 app.on('window-all-closed', app.quit)
-// On OS X it's common to re-create a window in the app when the
-// dock icon is clicked and there are no other windows open.
+// On OS X it's common to re-create a window in the app when the dock icon is clicked and there are no other windows open.
 app.on('activate', createWindow)
