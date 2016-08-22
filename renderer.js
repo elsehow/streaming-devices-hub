@@ -2,16 +2,16 @@ const {ipcRenderer, remote} = require('electron')
 const setupScreen = require('./views/setup-screen')
 // defaults for our devices (can configure ports on UI)
 const devices = [
-  // {
-  //   driver: './drivers/neurosky-mindwave',
-  //   name: 'neurosky mindwave',
-  //   port: '/dev/cu.MindWaveMobile-DevA',
-  // },
-  // {
-  //   driver: './drivers/arduino-gsr',
-  //   name: 'skin conductance sensor',
-  //   port: '/dev/cu.usbmodem1411',
-  // },
+  {
+    driver: './drivers/neurosky-mindwave',
+    name: 'neurosky mindwave',
+    port: '/dev/cu.MindWaveMobile-DevA',
+  },
+  {
+    driver: './drivers/arduino-gsr',
+    name: 'skin conductance sensor',
+    port: '/dev/cu.usbmodem1411',
+  },
   {
     driver: './drivers/timeserver',
     name: 'timeserver',
@@ -30,10 +30,11 @@ var config = {
   devices: devices,
 }
 let loggedDataS = require('./log-device')(config)
-loggedDataS.log("this is my data ;0")
+loggedDataS
+  .map(buff => buff.map(l => l.value.payload))
+  .map(JSON.stringify)
+  .log("this is my data ;0")
 
-var sp = require('serialport');
-
-sp.list(function(err, ports) {
-  console.log(ports);
-});
+loggedDataS.onError(err => {
+  console.log('ERR!!!!!!', err)
+})

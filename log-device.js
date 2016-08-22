@@ -34,3 +34,4 @@ module.exports = function log (config) {
   var loggedDataS   = cycular.store(log, streams, 50, 100) // TODO break out into hypersink or s/t
   return loggedDataS
 }
+
