@@ -1,11 +1,13 @@
 var request = require('request');
 var timestamp = require('unix-timestamp')
 var kefir = require('kefir')
+// HACK magic number
+var interval = 500
 /*
   Takes opts.url
   URL for the timeserver
 */
-function timeserver (interval, url) {
+function timeserver (url) {
   function timeStream () {
     var requestedAt = Date.now()
     return kefir.stream(function (emitter) {

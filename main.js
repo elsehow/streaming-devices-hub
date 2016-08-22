@@ -32,21 +32,3 @@ app.on('ready', createWindow)
 app.on('window-all-closed', app.quit)
 // On OS X it's common to re-create a window in the app when the dock icon is clicked and there are no other windows open.
 app.on('activate', createWindow)
-
-
-// handle ipc from renderer
-const levelup = require('levelup');
-const leveldown = require('leveldown');
-const level = path => levelup(path, { db: leveldown });
-const hyperlog = require('hyperlog')
-const {ipcMain} = require('electron')
-// when we get a config
-ipcMain.on('config', (event, config) => {
-  // set up a hyperlog
-  let db = level(config.path)
-  let log = hyperlog(db, {
-    valueEncoding:'json'
-  })
-  // set up devices streams
-  event.sender.send('logged-buffer-stream', log)
-})

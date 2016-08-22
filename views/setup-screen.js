@@ -1,9 +1,8 @@
 const yo = require('yo-yo')
 const createStore = require('minidux').createStore
 const {dialog} = require('electron').remote
-const drivers = require('../drivers')
 
-function setupScreen (optsCb) {
+function setupScreen (devicesDefaults, optsCb) {
 
   function pathSelectDialog (cb) {
     return dialog.showOpenDialog({
@@ -14,23 +13,7 @@ function setupScreen (optsCb) {
   let initialState = {
     path: null,
     name: null,
-    devices:  [
-      {
-        driver: drivers.mindwave,
-        name: 'neurosky mindwave',
-        port: '/dev/cu.MindWaveMobile-DevA',
-      },
-      {
-        driver: drivers.arduino,
-        name: 'skin conductance sensor',
-        port: '/dev/cu.usbmodem1411',
-      },
-      {
-        driver: drivers.timeserver,
-        name: 'timeserver',
-        port: 'http://indra.webfactional.com/timeserver',
-      },
-    ],
+    devices: devicesDefaults,
   }
 
   function reducer (state, action) {
