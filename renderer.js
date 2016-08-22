@@ -11,6 +11,7 @@ const devices = [
     driver: './drivers/arduino-gsr',
     name: 'skin conductance sensor',
     port: '/dev/cu.usbmodem1411',
+    // disabled: true,// TODO how to avoid/still view/
   },
   {
     driver: './drivers/timeserver',
@@ -24,17 +25,33 @@ const devices = [
 //   loggedDataS.log("this is my data ;0")
 // })
 
-var config = {
+let config = {
   path: '/tmp/nice',
   name: 'nick',
   devices: devices,
 }
-let loggedDataS = require('./log-device')(config)
-loggedDataS
-  .map(buff => buff.map(l => l.value.payload))
-  .map(JSON.stringify)
-  .log("this is my data ;0")
-
-loggedDataS.onError(err => {
-  console.log('ERR!!!!!!', err)
+config.devices = config.devices.filter(d => !d.disabled)
+let loggedDataS = require('./log-devices')(config)
+// loggedDataS
+//   .map(buff =>
+//        buff.map(l =>
+//                 l.value.metadata.device))
+//   .log("data from device ;0")
+let ids = config.devices.map(d => d.name)
+let drawFs = config.devices.map(d =>
+                         require(d.driver).draw)
+var framework = require('./devices-framework')
+var elS = framework(loggedDataS, ids, drawFs)
+let el = null
+const yo = require('yo-yo')
+elS.onValue(newEl => {
+  if (!el) {
+    el = newEl
+    document.body.innerHTML = ''
+    document.body.appendChild(el)
+  }
+  // TODO searching dom every update?
+  yo.update(document.getElementById('app'), newEl)
 })
+
+

@@ -14,7 +14,6 @@
     "node-pre-gyp": "^0.6.28"
   },
   "dependencies": {
-    "cycular": "^0.1.1",
     "hyperlog": "^4.10.0",
     "kefir": "^3.4.0",
     "leveldown": "^1.4.6",

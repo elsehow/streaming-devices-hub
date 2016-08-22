@@ -27,4 +27,18 @@ function timeserver (url) {
   return kefir.interval(interval,1).flatMap(timeStream)
 }
 
-module.exports = timeserver
+var yo = require('yo-yo')
+function draw (stream) {
+  return stream.map(v => {
+    return yo`<div>
+      <h2>Timeserver</h2>
+      ${JSON.stringify(v)}
+      </div>
+      `
+  })
+}
+
+module.exports = {
+  setup: timeserver,
+  draw: draw,
+}
