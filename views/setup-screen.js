@@ -126,7 +126,7 @@ function setupScreen (devicesDefaults, optsCb) {
 
       <div>
         <h2>Devices</h2>
-        Serial ports, FYI:
+      Serial ports I can see, FYI (not all of them will be open):
         ${ports(state.portsList)}
         ${state.devices.map(deviceConfig)}
       </div>
