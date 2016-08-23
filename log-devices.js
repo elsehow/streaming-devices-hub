@@ -56,7 +56,7 @@ module.exports = function log (config) {
     // map each stream through the passthrough
     return deviceDataS.map(passthrough)
   }
-  let streams = config.devices.map(load)
+  let streams = config.devices.filter(d => d.enabled).map(load)
   var loggedDataS = sink(log, streams, 50, 100) // TODO break out into hypersink or s/t
   return loggedDataS
 }

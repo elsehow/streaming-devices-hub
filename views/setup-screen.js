@@ -1,6 +1,7 @@
 const yo = require('yo-yo')
 const createStore = require('minidux').createStore
 const {dialog} = require('electron').remote
+const serialport = require('serialport')
 
 function setupScreen (devicesDefaults, optsCb) {
 
@@ -14,10 +15,21 @@ function setupScreen (devicesDefaults, optsCb) {
     path: null,
     name: null,
     devices: devicesDefaults,
+    portsList: [],
   }
 
   function reducer (state, action) {
     switch (action.type) {
+    case 'device-enabled':
+      state.devices = state.devices.map(device => {
+        if (device.name === action.device)
+          device.enabled = action.enabled
+        return device
+      })
+      return state
+    case 'ports-list':
+      state.portsList = action.portsList
+      return state
     case 'path':
       state.path = action.path
       return state
@@ -36,38 +48,73 @@ function setupScreen (devicesDefaults, optsCb) {
     }
   }
 
-  function view (state) {
-    // async method calls back on selected paths
-    function selectLogPath () {
-      pathSelectDialog(function (path) {
-        store.dispatch( {
-          type: 'path',
-          path: path[0],
-        })
+  serialport.list(function (err, ports) {
+    if (err)
+      throw err
+    if (ports.length) {
+      store.dispatch({
+        type: 'ports-list',
+        portsList: ports,
       })
     }
-    function deviceConfig (device) {
-      return yo`<div>
-        <h3>${device.name}</h3>
-        <input onchange=${function (ev) {
-          store.dispatch({
-            type: 'device-port',
-            device: device,
-            port: ev.target.value,
-          })
-        }} value=${device.port}/>
-        </div>`
-    }
-    let readyToRecord = state.name && state.path
+  })
+
+  // async method calls back on selected paths
+  function selectLogPath () {
+    pathSelectDialog(function (path) {
+      store.dispatch( {
+        type: 'path',
+        path: path[0],
+      })
+    })
+  }
+
+  function deviceConfig (device) {
     return yo`<div>
-      <div>
+      <h3>${device.name}</h3>
+      <input onchange=${function (ev) {
+        store.dispatch({
+          type: 'device-port',
+          device: device.name,
+          port: ev.target.value,
+        })
+      }} value=${device.port}/>
+      <input type="checkbox"
+    checked=${device.enabled}
+    onchange=${function (ev) {
+        store.dispatch({
+          type: 'device-enabled',
+          device: device.name,
+          enabled: ev.target.checked,
+        })
+      }}/>
+      </div>`
+  }
+
+  function ports (portsList){
+    if (!portsList.length)
+      return
+    return yo`<ul>
+      ${portsList.map(function (port) {
+        return yo`<li>${port.comName}</li`
+      })}
+    </ul>`
+  }
+
+  function view (state) {
+
+    let readyToRecord = state.name && state.path
+
+    return yo`<div>
+
       <p>
       <button onclick=${selectLogPath}>
-      Select a path for the log
-    </button>
+        Select a path for the log
+      </button>
       <br>
       <i>${state.path ? state.path : 'Select a path'}</i>
       </p>
+
       <p>
       <input onchange=${function (ev) {
         store.dispatch({
@@ -76,18 +123,22 @@ function setupScreen (devicesDefaults, optsCb) {
         })
       }} placeholder="your name"/>
       </p>
+
+      <div>
+        <h2>Devices</h2>
+        Serial ports, FYI:
+        ${ports(state.portsList)}
+        ${state.devices.map(deviceConfig)}
       </div>
-      <div>
-      <h2>Devices</h2>
-      ${state.devices.map(deviceConfig)}
-    </div>
-      <div>
+
+      <p>
         <button onclick=${function () {
           optsCb(state)
         }} disabled=${!readyToRecord}>
         START RECORDING!
         </button>
-      </div>
+      </p>
+
       </div>`
   }
 
