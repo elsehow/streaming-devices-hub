@@ -27,7 +27,7 @@ var yo = require('yo-yo')
 function draw (stream) {
   return stream.map(v => {
     return yo`<div>
-      <h2>Mindwave!</h2>
+      <h2>Arduino!</h2>
       ${JSON.stringify(v)}
     </div>
       `

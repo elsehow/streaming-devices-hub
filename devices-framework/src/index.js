@@ -54,6 +54,7 @@ module.exports = (loggedDataS, deviceNames, drawFs) => {
   })
 
   deviceNames.map(name => {
+    console.log('mapping', name)
     let deviceDataS = loggedDataS
         .ignoreErrors()
         .map(fromDevice(name))

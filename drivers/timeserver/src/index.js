@@ -32,7 +32,7 @@ function draw (stream) {
   return stream.map(v => {
     return yo`<div>
       <h2>Timeserver</h2>
-      ${JSON.stringify(v)}
+      ${JSON.stringify(v.value.payload)}
       </div>
       `
   })

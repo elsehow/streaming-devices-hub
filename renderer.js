@@ -22,25 +22,25 @@ const devices = [
     enabled: true,
   },
 ]
-// the setup screen calls back on the user's configuration
-setupScreen(devices, function (config) {
+function setup (config) {
   document.body.innerHTML = 'loading..'
+  config.devices = config.devices.filter(d => d.enabled)
   let loggedDataS = require('./log-devices')(config)
-  let enabledDevices = config.devices.filter(d => d.enabled)
-  let deviceNames = enabledDevices.map(d=>d.name)
+  let deviceNames = config.devices.map(d=>d.name)
   let drawFs = config.devices.map(d => require(d.driver).draw)
   var store = framework(loggedDataS, deviceNames, drawFs)
+  loggedDataS.log('hmm')
   store.subscribe(require('./views/devices-screen'))
-})
 
+}
+// the setup screen calls back on the user's configuration
+setupScreen(devices, function (config) {
+  setup(config)
+})
+// DEBUG
 // let config = {
 //   path: '/tmp/nice',
 //   name: 'nick',
 //   devices: devices,
 // }
-// config.devices = config.devices.filter(d => !d.disabled)
-// let loggedDataS = require('./log-devices')(config)
-// let deviceNames = config.devices.map(d=>d.name)
-// let drawFs = config.devices.map(d => require(d.driver).draw)
-// var store = framework(loggedDataS, deviceNames, drawFs)
-// store.subscribe(require('./views/devices-screen'))
+// setup(config)
