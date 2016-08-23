@@ -24,6 +24,7 @@
     "request": "^2.74.0",
     "serialport": "^4.0.1",
     "unix-timestamp": "^0.2.0",
-    "yo-yo": "^1.2.2"
+    "yo-yo": "^1.2.2",
+    "zip-object": "^0.1.0"
   }
 }

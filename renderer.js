@@ -1,5 +1,6 @@
 const {ipcRenderer, remote} = require('electron')
 const setupScreen = require('./views/setup-screen')
+const framework = require('./devices-framework')
 // defaults for our devices (can configure ports on UI)
 const devices = [
   {
@@ -11,7 +12,7 @@ const devices = [
     driver: './drivers/arduino-gsr',
     name: 'skin conductance sensor',
     port: '/dev/cu.usbmodem1411',
-    // disabled: true,// TODO how to avoid/still view/
+    disabled: true,
   },
   {
     driver: './drivers/timeserver',
@@ -32,26 +33,39 @@ let config = {
 }
 config.devices = config.devices.filter(d => !d.disabled)
 let loggedDataS = require('./log-devices')(config)
-// loggedDataS
-//   .map(buff =>
-//        buff.map(l =>
-//                 l.value.metadata.device))
-//   .log("data from device ;0")
-let ids = config.devices.map(d => d.name)
-let drawFs = config.devices.map(d =>
-                         require(d.driver).draw)
-var framework = require('./devices-framework')
-var elS = framework(loggedDataS, ids, drawFs)
+let deviceNames = config.devices.map(d=>d.name)
+let drawFs = config.devices.map(d => require(d.driver).draw)
+var store = framework(loggedDataS, deviceNames, drawFs)
 let el = null
 const yo = require('yo-yo')
-elS.onValue(newEl => {
+store.subscribe(state => {
+  // console.log('state!', state)
+  function errorMsg (err) {
+    if (err)
+      return yo`<div class="error">
+        ${err.toString()}
+      </div>`
+    return
+  }
+  function viewDevices (nameStateMap) {
+    let names = Object.keys(nameStateMap)
+    let views = names.map(name => {
+      let view = nameStateMap[name].view
+      let display = view ? view : yo`<h2>${name}</h2>`
+      return yo`<div>
+        ${display}
+      </div>`
+    })
+    return yo`<div>${views}</div>`
+  }
+  let newEl = yo`<div>
+    ${errorMsg(state.error)}
+    ${viewDevices(state.nameStateMap)}
+  </div>`
   if (!el) {
     el = newEl
-    document.body.innerHTML = ''
     document.body.appendChild(el)
   }
-  // TODO searching dom every update?
-  yo.update(document.getElementById('app'), newEl)
+  // document.body.innerHTML = ''
+  yo.update(el, newEl)
 })
-
-
